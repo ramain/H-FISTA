@@ -500,17 +500,20 @@ def get_paper_figure(
     return fig, axs
 
 
-def get_dynamic_field_plot(data, io, step, cmap="cubehelix", figsize=(16, 8)):
+def get_dynamic_field_plot(data, io, step, cmap="viridis", cmap_phase="twilight_shifted", figsize=(17, 8)):
     resid = Residual(data, io["models"][step], None, io["masks"][step])
     fig, axs = plt.subplots(1, 2, sharey=True, figsize=figsize)
-    _ = axs[0].imshow(np.abs(resid.H.T), cmap=cmap)
+    plt.subplots_adjust(wspace=0.20)
+    im0 = axs[0].imshow(np.abs(resid.H.T), cmap=cmap)
+    cax0 = axs[0].inset_axes([1.02, 0.0, 0.05, 1.0])
     _ = axs[0].set_title("magnitudes")
     _ = axs[0].set_ylabel("Frequency [arbitrary]")
     _ = axs[0].set_xlabel("Time [arbitrary]")
     _ = axs[1].set_xlabel("Time [arbitrary]")
-    ims = axs[1].imshow(np.angle(resid.H.T), cmap=cmap)
-    cax = axs[1].inset_axes([1.04, 0.2, 0.05, 0.6])
-    fig.colorbar(ims, ax=axs[1], cax=cax, label="phase [rad]")
+    im1 = axs[1].imshow(np.angle(resid.H.T), cmap=cmap_phase, vmin=-np.pi, vmax=np.pi)
+    cax1 = axs[1].inset_axes([1.02, 0.0, 0.05, 1.0])
+    fig.colorbar(im0, ax=axs[0], cax=cax0)# label="intensity (arb)")
+    fig.colorbar(im1, ax=axs[1], cax=cax1, label="phase (rad)")
     _ = axs[1].set_title("phases")
     fig.suptitle(f"Dynamic field at step {step}")
     return fig, axs
